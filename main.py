@@ -87,14 +87,31 @@ def generate_signed_headers(body_str: str):
         "Authorization": authorization,
     }
 
+from fastapi.responses import JSONResponse
+import traceback
+
 @app.post("/sign-and-forward")
 async def sign_and_forward(payload: CVRequest):
-    body_dict = payload.dict()
-    body_str = json.dumps(body_dict)
-    headers = generate_signed_headers(body_str)
-    url = "https://visual.volcengineapi.com/?Action=CVProcess&Version=2022-08-31"
-    response = requests.post(url, data=body_str, headers=headers)
-    return {
-        "status_code": response.status_code,
-        "response": response.json(),
-    }
+    try:
+        body_dict = payload.dict()
+        body_str = json.dumps(body_dict)
+
+        headers = generate_signed_headers(body_str)
+        url = "https://visual.volcengineapi.com/?Action=CVProcess&Version=2022-08-31"
+
+        response = requests.post(url, data=body_str, headers=headers)
+
+        return {
+            "status_code": response.status_code,
+            "response": response.json(),
+        }
+
+    except Exception as e:
+        # 将错误打印到 Render 的日志控制台
+        print("❌ Exception occurred in /sign-and-forward:")
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
