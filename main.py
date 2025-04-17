@@ -5,7 +5,7 @@ app = FastAPI()
 
 @app.post("/sign-and-forward")
 async def sign_and_forward(req: Request):
-    body = await req.body()
+    body = await req.json()
     
     # TODO: 在这里调用你自建的签名逻辑函数，生成签名头 headers
     # 示例 headers 结构如下（你需要根据火山签名算法生成）：
